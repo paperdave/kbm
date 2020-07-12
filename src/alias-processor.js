@@ -15,7 +15,6 @@ function expandKeyArray(config, kbid, keyArray) {
   
       if (aliases.length > 0) {
         // if it is a modifier, then we have to do extra work
-        console.log('alias on ' + i)
         if (i < keyArray.length - 1) {
           const modmap = Object.entries(xmodmap());
           

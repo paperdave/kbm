@@ -10,10 +10,15 @@ async function createCombinedShortcutHandler(bindingConfig, deviceConfig) {
   const emitter = new EventEmitter();
 
   const devices = await getInputDevices()
-  
-  const deviceEventMap = mapObjEntries(deviceConfig, ([id, name]) => {
-    const device = devices.find(x => x.name === name);
-    return [id, device ? device.handlers.find(x => x.startsWith('event')) : null];
+
+  const deviceEventMap = mapObjEntries(deviceConfig, ([id, keyboards]) => {
+    return [
+      id,
+      keyboards.map(keyboard => {
+        const device = devices.find(x => x.name === keyboard.device);
+        return device ? device.handlers.find(x => x.startsWith('event')) : null;
+      }).filter(Boolean)
+    ];
   });
 
   const devicesRequired = [...new Set(Object.keys(bindingConfig.keys).map(x => x.split('.')[0].substr(2)))];
@@ -24,12 +29,14 @@ async function createCombinedShortcutHandler(bindingConfig, deviceConfig) {
   verbose(`devices required: ${devicesRequired.map(x => `kb${x}`).join(', ')}`);
 
   const handlers = devicesRequired.map((id) => {
-    const handler = createShortcutHandler(bindingConfig, parseInt(id), deviceEventMap[id]);
-    handler.on('action', (...args) => emitter.emit('action', ...args));
-    handler.on('key', (...args) => emitter.emit('key', ...args));
-    handler.on('err', (...args) => emitter.emit('err', ...args));
-    return handler;
-  });
+    return (deviceEventMap[id] || []).map((event) => {
+      const handler = createShortcutHandler(bindingConfig, parseInt(id), event);
+      handler.on('action', (...args) => emitter.emit('action', ...args));
+      handler.on('key', (...args) => emitter.emit('key', ...args));
+      handler.on('err', (...args) => emitter.emit('err', ...args));
+      return handler;
+    })
+  }).flat();
   
   emitter.stop = () => {
     handlers.forEach(x => x.stop());

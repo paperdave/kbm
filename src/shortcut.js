@@ -5,6 +5,7 @@
 const { spawn } = require('child_process');
 const { xmodmap } = require('./xmodmap-parser');
 const { keys: x11keys } = require('./keys');
+const { verbose } = require('./log');
 
 const path = require('path');
 const EventEmitter = require('events');
@@ -15,7 +16,7 @@ const HELPER_PATH = path.join(__dirname, '../helper/kbm-helper');
 class ExternalShortcutHandler extends EventEmitter {
   constructor(config, kb, device) {
     super();
-    // verbose(`Starting ExternalShortcutHandler on kb${kb} on ${device}`);
+    verbose(`Starting ExternalShortcutHandler on kb${kb} on ${device}`);
     this.device = device;
     this.config = config;
     this.kb = kb;
@@ -47,7 +48,7 @@ class ExternalShortcutHandler extends EventEmitter {
       });
     });
     this.process.on('exit', () => {
-      // console.log('!!! Kb' + this.kb + ' Ended');
+      console.log('!!! Kb' + this.kb + ' Ended');
     });
   }
 
