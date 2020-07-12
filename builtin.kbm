@@ -1,0 +1,10 @@
+alias kb* control = control_left
+alias kb* control = control_right
+alias kb* shift = shift_left
+alias kb* shift = shift_right
+alias kb* alt = alt_left
+alias kb* alt = alt_right
+alias kb* super = super_left
+alias kb* super = super_right
+alias kb* hyper = hyper_left
+alias kb* hyper = hyper_right

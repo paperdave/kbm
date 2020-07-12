@@ -1,0 +1,30 @@
+{
+    "name": "kbm",
+    "displayName": "kbm",
+    "description": "kbm support",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.46.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "kbm",
+            "aliases": ["Keyboard Macros", "kbm"],
+            "extensions": [".kbm"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "kbm",
+            "scopeName": "source.kbm",
+            "path": "./syntaxes/kbm.tmLanguage.json",
+            "embeddedLanguages": {
+                "source.shell": "shellscript",
+                "source.js": "javascript",
+                "source.python": "python"
+            }
+        }]
+    }
+}

@@ -1,0 +1,229 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Keyboard Macros",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#keybinds"
+		},
+		{
+			"include": "#alias"
+		},
+		{
+			"include": "#function"
+		}
+	],
+	"repository": {
+		"comments": {
+			"begin": "//|#",
+			"end": "$",
+			"name": "comment.line.kbm"
+		},
+		"keybinds": {
+			"begin": "(kb[0-9]+)\\b",
+			"beginCaptures": {
+				"1": {
+					"name": "entity.name.tag.kbm"
+				}
+			},
+			"patterns": [
+				{ "include": "#at" }
+			],
+			"end": "$"
+		},
+		"function": {
+			"begin": "(function)\\b",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.control"
+				}
+			},
+			"patterns": [
+				{ "include": "#function_name" }
+			],
+			"end": "$"
+		},
+		"function_name": {
+			"begin": "([a-zA-Z_+-][a-zA-Z0-9_\\.+-]*)\\s*\\(",
+			"beginCaptures": {
+				"1": {
+					"name": "entity.name.function"
+				}
+			},
+			"patterns": [
+				{ "include": "#function_args" },
+				{ "include": "#function_closingb" }
+			],
+			"end": "$"
+		},
+		"function_args": {
+			"match": "[a-zA-Z_+-][a-zA-Z0-9_\\.+-]*",
+			"name": "variable.parameter"
+		},
+		"function_closingb": {
+			"begin": "\\)",
+			"patterns": [
+				{ "include": "#colon" }
+			],
+			"end": "$"
+		},
+		"alias_kbname": {
+			"begin": "(kb(?=([0-9]+)|(\\*)))",
+			"beginCaptures": {
+				"1": {
+					"name": "entity.name.tag.kbm"
+				},
+				"2": {
+					"name": "entity.name.tag.kbm"
+				},
+				"3": {
+					"name": "keyword.operator.assignment"
+				}
+			},
+			"patterns": [
+				{ "include": "#alias_keyname" }
+			],
+			"end": "$"
+		},
+		"alias": {
+			"begin": "(alias)",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.control"
+				}
+			},
+			"patterns": [
+				{ "include": "#alias_kbname" }
+			],
+			"end": "$"
+		},
+		"at": {
+			"begin": "(\\@)",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.operator.at.kbm"
+				}
+			},
+			"end": "$",
+			"patterns": [
+				{ "include": "#plus" },
+				{ "include": "#keyname" },
+				{ "include": "#colon" }
+			]
+		},
+		"plus": {
+			"match": "\\+",
+			"name": "keyword.operator.arithmetic.plus"
+		},
+		"keyname": {
+			"match": "\\b[a-zA-Z][a-zA-Z0-9_]*\\b",
+			"name": "constant.other"
+		},
+		"alias_keyname": {
+			"match": "\\b[a-zA-Z][a-zA-Z0-9_]*\\b",
+			"name": "constant.other"
+		},
+		"colon": {
+			"begin": "(:)",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.operator.colon.kbm"
+				}
+			},
+			"patterns": [
+				{ "include": "#actionInlineShell" },
+				{ "include": "#actionStdinNode" },
+				{ "include": "#actionStdinPython" },
+				{ "include": "#actionStdinBash" },
+				{ "include": "#actionStdin" },
+				{ "include": "#actionName" }
+			],
+			"end": "$"
+		},
+		"actionName": {
+			"match": "\\b([^\\n ]+)\\s*.*",
+			"captures": {
+				"1": {
+					"name": "entity.name.function"
+				}
+			}
+		},
+		"actionStdinNode": {
+			"begin": "(node)\\s+{",
+			"end": "}",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.control.kbm"
+				}
+			},
+			"name": "punctuation.definition.block.kbm",
+			"contentName": "source.js",
+			"patterns": [
+				{
+					"include": "source.js"
+				}
+			]
+		},
+		"actionStdinBash": {
+			"begin": "(bash|sh)\\s+{\n",
+			"end": "}",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.control.kbm"
+				}
+			},
+			"name": "punctuation.definition.block.kbm",
+			"contentName": "source.shell",
+			"patterns": [
+				{
+					"include": "source.shell"
+				}
+			]
+		},
+		"actionStdinPython": {
+			"begin": "(python([0-9.]+)?)\\s+{\n",
+			"end": "}",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.control.kbm"
+				}
+			},
+			"name": "punctuation.definition.block.kbm",
+			"contentName": "source.python",
+			"patterns": [
+				{
+					"include": "source.python"
+				}
+			]
+		},
+		"actionStdin": {
+			"begin": "{\n",
+			"end": "}",
+			"name": "punctuation.definition.block.kbm",
+			"contentName": "source.shell",
+			"patterns": [
+				{
+					"include": "source.shell"
+				}
+			]
+		},
+		"actionInlineShell": {
+			"begin": "(\\$)\\s+",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.control.kbm"
+				}
+			},
+			"end": "$",
+			"contentName": "source.shell",
+			"patterns": [
+				{
+					"include": "source.shell"
+				}
+			]
+		}
+	},
+	"scopeName": "source.kbm"
+}
