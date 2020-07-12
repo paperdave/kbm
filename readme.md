@@ -1,4 +1,4 @@
-# KBM: Easy Keyboard Macros for Linux*
+# KBM: Better Keyboard Macros for Linux*
 <sup><sup><sup>*and potentially other operating systems.</sup></sup></sup>
 
 Install on any Linux with Xorg.
@@ -28,6 +28,8 @@ go with the macros, not as separate shell scripts in.
 Make something to solve all the problems, even if it helps no one else.
 
 This program is capable of listening on as many dedicated keyboards for raw events, and running complex commands. It can also hook into X11 and add global keybindings there.
+
+oh also KBM stands for **K**ey**b**oard **M**acros.
 
 ## Basic Feature List
 - Same format for external and x11 keybinds
