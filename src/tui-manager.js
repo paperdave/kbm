@@ -4,8 +4,11 @@ const inquirer = require('inquirer');
 const { readDeviceMap, writeDeviceMap } = require('./config');
 const { lockAndListenAllDevices } = require('./shortcut-combiner');
 const { delay } = require('./util');
+const { setVerboseLogging } = require('./log');
 
 async function manager() {
+  setVerboseLogging(false);
+  
   const config = await readDeviceMap();
 
   while(true) {

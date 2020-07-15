@@ -1,8 +1,13 @@
 const { spawn } = require('child_process');
+const { verbose } = require('./log');
 
 function runAction(bindingConfig, action) {
-  const args = action.command.split(' ');
+  verbose('running action', action);
+  const args = action.command.trim().replace(/  +/, ' ').split(' ').map(x => x.trim());
   const program = args.shift() || 'bash';
+  let proc;
+
+  if (action.runBefore) action.runBefore(action);
 
   if (bindingConfig.functions[program]) {
     const func = bindingConfig.functions[program];
@@ -11,7 +16,7 @@ function runAction(bindingConfig, action) {
     const funcCliArgs = func.command.split(' ');
     const funcProgram = funcCliArgs.shift() || 'bash';
 
-    const proc = spawn(
+    proc = spawn(
       funcProgram,
       funcCliArgs,
       {
@@ -23,16 +28,20 @@ function runAction(bindingConfig, action) {
       }
     );
     if (func.data) {
-      proc.stdin.write(func.data)
-      proc.stdin.end()
+      proc.stdin.write(func.data);
+      proc.stdin.end();
     }
   } else {
-    const process = spawn(program, args, { stdio: ['pipe', 'inherit', 'inherit'] });
+    proc = spawn(program, args, { stdio: ['pipe', 'inherit', 'inherit'] });
     if (action.data) {
-      process.stdin.write(action.data)
-      process.stdin.end()
+      proc.stdin.write(action.data)
+      proc.stdin.end()
     }
   }
+
+  proc.on('exit', () => {
+    if (action.runAfter) action.runAfter(action);
+  })
 }
 
 module.exports = { runAction };

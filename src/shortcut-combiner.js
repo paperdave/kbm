@@ -21,9 +21,11 @@ async function createCombinedShortcutHandler(bindingConfig, deviceConfig) {
     ];
   });
 
+  deviceEventMap['0'] = [null];
+
   const devicesRequired = [...new Set(Object.keys(bindingConfig.keys).map(x => x.split('.')[0].substr(2)))];
 
-  // now yes, we didn't need to calculate the devices.find but it honestly doesn't
+  // now yes, we didn't need to calculate the devices. find but it honestly doesn't
   // matter since it takes no time and only happens on load+reload.
 
   verbose(`devices required: ${devicesRequired.map(x => `kb${x}`).join(', ')}`);

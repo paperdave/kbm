@@ -2,7 +2,7 @@
 // - Interfaces with the kbm-helper binary
 // - Does the shortcut detection for keyboards.
 
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const { xmodmap } = require('./xmodmap-parser');
 const { keys: x11keys } = require('./keys');
 const { verbose } = require('./log');
@@ -48,7 +48,7 @@ class ExternalShortcutHandler extends EventEmitter {
       });
     });
     this.process.on('exit', () => {
-      console.log('!!! Kb' + this.kb + ' Ended');
+      verbose('!!! Kb' + this.kb + ' Ended');
     });
   }
 
@@ -61,7 +61,7 @@ class ExternalShortcutHandler extends EventEmitter {
 class X11ShortcutHandler extends EventEmitter {
   constructor(config) {
     super();
-    // verbose('Starting X11ShortcutHandler');
+    verbose('Starting X11ShortcutHandler');
     this.config = config;
 
     const x11grabs = {};
@@ -96,7 +96,9 @@ class X11ShortcutHandler extends EventEmitter {
         throw new Error(`Key ${activatorKey} cannot be used on an X11/kb0 keybind.`);
       }
       
-      x11grabs[keycode + ' ' + mods.map(x => modifierBitwiseMap[x]).reduce((a,b) => a | b, 0)] = this.config.keys['kb0.' + combo];
+      const key = keycode + ' ' + mods.map(x => modifierBitwiseMap[x]).reduce((a,b) => a | b, 0);
+      x11grabs[key] = this.config.keys['kb0.' + combo];
+      x11grabs[key].activatorKey = activatorKey;
     });
 
     const stdin = Object.keys(x11grabs).join('\n');
@@ -108,12 +110,20 @@ class X11ShortcutHandler extends EventEmitter {
       const strings = data.toString().split('\n').filter(Boolean);
       strings.forEach(str => {
         if (x11grabs[str]) {
-          this.emit('action', x11grabs[str]);
+          const activatorKey = x11grabs[str].activatorKey;
+          this.emit('action', {
+            ...x11grabs[str],
+            runBefore: () => {
+              execSync('xdotool keyup ' + activatorKey);
+            },
+            runAfter: () => {
+            }
+          });
         }
       });
     });
     this.process.on('exit', () => {
-      // console.log('!!! Kb0 Ended');
+      verbose('!!! Kb0 Ended');
     });
   }
 

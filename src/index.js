@@ -4,11 +4,22 @@ const yargs = require('yargs');
 const { getKeyboardDevices, getInputDevices } = require('./device-reader');
 const { readDeviceMap, readKeyMap } = require('./config');
 const { createShortcutHandler } = require('./shortcut');
+const { setVerboseLogging } = require('./log');
+
+setVerboseLogging(false);
 
 yargs
   .scriptName("kbm")
   .usage('$0 <cmd> [args]')
   .command('daemon', 'Run the background daemon.', () => require('./daemon').startDaemon())
+  .option('verbose', { desc: 'Enable Verbose Logging.'} )
+  .alias('v', 'verbose')
+
+if (yargs.argv.v) {
+  setVerboseLogging(true);
+}
+
+yargs
   .command('config', 'Show the keyboard manager tui.', () => require('./tui-manager'))
   .command('debug', 'Debug', (yargs) => {
     yargs
