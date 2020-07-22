@@ -87,7 +87,7 @@ class X11ShortcutHandler extends EventEmitter {
       }))];
 
       if(mods.length === 0) {
-        throw new Error('At least one modifier is required for X11/kb0 key combinations, please add a modifier such as super.');
+        throw new Error('In combo "' + combo + '", At least one modifier is required for X11/kb0 key combinations, please add a modifier such as super.');
       }
 
       const keycode = x11keys[activatorKey];

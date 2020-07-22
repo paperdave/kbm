@@ -28,7 +28,7 @@ static const char* const EXT_KEY_LABELS[256] = {
   "9",
   "0",
   "minus",
-  "equal",
+  "equals",
   "backspace",
   "tab",
   "q",
