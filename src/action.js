@@ -3,7 +3,7 @@ const { verbose } = require('./log');
 
 function runAction(bindingConfig, action) {
   verbose('running action', action);
-  const args = action.command.trim().replace(/  +/, ' ').split(' ').map(x => x.trim());
+  const args = action.command.concat(); // clone array
   const program = args.shift() || 'bash';
   let proc;
 
@@ -13,7 +13,7 @@ function runAction(bindingConfig, action) {
     const func = bindingConfig.functions[program];
     const env = Object.fromEntries(func.args.map((name, i) => [name, args[i]]));
 
-    const funcCliArgs = func.command.split(' ');
+    const funcCliArgs = func.command.concat();
     const funcProgram = funcCliArgs.shift() || 'bash';
 
     proc = spawn(

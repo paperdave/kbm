@@ -1,5 +1,6 @@
 #!/usr/bin/node
 const yargs = require('yargs');
+const util = require('util');
 
 const { getKeyboardDevices, getInputDevices } = require('./device-reader');
 const { readDeviceMap, readKeyMap } = require('./config');
@@ -24,11 +25,11 @@ yargs
   .command('debug', 'Debug', (yargs) => {
     yargs
       .usage('$0 debug <cmd> [args]')
-      .command('dump-kb', 'Dump the keyboard list.', async() => console.log((await getKeyboardDevices()).map(x => `${x.name} (${x.handlers.find(x=>x.startsWith('event'))})`).join('\n')))
-      .command('dump-kb-all', 'Dump the input device list.', async() => console.log((await getInputDevices()).map(x => `${x.name} (${x.handlers.find(x=>x.startsWith('event'))})`).join('\n')))
-      .command('dump-config', 'Dump devices.json', async() => console.log(await readDeviceMap()))
-      .command('dump-keys-noalias', 'Dump parsed key.json', async() => console.log(await readKeyMap()))
-      .command('dump-keys', 'Dump parsed key.json', async() => console.log(await readKeyMap()))
+      .command('dump-kb', 'Dump the keyboard list.', async() => console.log(util.inspect((await getKeyboardDevices()).map(x => `${x.name} (${x.handlers.find(x=>x.startsWith('event'))})`).join('\n'),false,100,true)))
+      .command('dump-kb-all', 'Dump the input device list.', async() => console.log(util.inspect((await getInputDevices()).map(x => `${x.name} (${x.handlers.find(x=>x.startsWith('event'))})`).join('\n'),false,100,true)))
+      .command('dump-config', 'Dump devices.json', async() => console.log(util.inspect(await readDeviceMap(),false,100,true)))
+      .command('dump-keys-noalias', 'Dump parsed key.json', async() => console.log(util.inspect(await readKeyMap(),false,100,true)))
+      .command('dump-keys', 'Dump parsed key.json', async() => console.log(util.inspect(await readKeyMap(),false,100,true)))
       .command(
         'read-keys [event]', 'Run a key reader on the given event name.',
         (y) => y.positional('event', { description: 'event name to run on' }),

@@ -2,9 +2,9 @@ const { keyList } = require('./keys');
 const trim = require('trim-lines2');
 
 const REGEX_COMMENT = /^\s*(#|\/\/).*$/;
-const REGEX_FUNCTION = /^\s*function\s+([a-zA-Z_+-][a-zA-Z0-9_\.+-]*)\s*\(([a-zA-Z_+-][a-zA-Z0-9_\.+,\s-]*)?\)\s*:\s*(.*)/;
+const REGEX_FUNCTION = /^\s*function\s+([a-zA-Z_+-0-9][a-zA-Z0-9_\.+-]*)\s*\(([a-zA-Z_+0-9-][a-zA-Z0-9_\.+,\s-]*)?\)\s*:\s*(.*)/;
 const REGEX_KB = /^\s*kb([0-9]+)\s*@\s*([^:]+)\s*:\s*(.*)$/;
-const REGEX_ALIAS = /^\s*alias\s+kb(\*|[0-9]+)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*$/;
+const REGEX_ALIAS = /^\s*alias\s+kb(\*|[0-9]+)\s+([a-zA-Z_0-9][a-zA-Z0-9_]*)\s*=\s*([a-zA-Z_0-9][a-zA-Z0-9_]*)\s*$/;
 const REGEX_BLOCK_END = /^(.*)}\s*$/;
 
 function parseCombo(str) {
@@ -13,8 +13,49 @@ function parseCombo(str) {
   return arr.sort().concat(item);
 }
 function parseArgs(str) {
-  const arr = str.split(',').map(x => x.trim());
-  return arr;
+  return str.split(',').map(x => x.trim());
+}
+function parseCommandArgs(str) {
+  // This is an edge case / builtin
+  if(str.trim().startsWith('$')) {
+    return [
+      'bash',
+      '-c',
+      str.trim().slice(2).trim(),
+    ]
+  }
+
+  const args = [];
+  let currentArg = null;
+  let inString = null;
+  let backSlashCount = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] !== '\\') backSlashCount = 0
+    if (str[i] === '\\') backSlashCount ++;
+
+    if(backSlashCount % 2 === 0) {
+      if (str[i] === ' ' || str[i] === '\t') {    
+        if (inString !== null) {
+          if(!currentArg) currentArg = '';
+          currentArg += str[i]
+        } else if (currentArg !== null) {
+          args.push(currentArg);
+          currentArg = null;
+        }
+      } else if (inString === null && str[i] === '"' || str[i] === "'") {
+        inString = str[i];
+      } else if (inString !== null && str[i] === inString ) {
+        inString = null;
+      } else {
+        if(!currentArg) currentArg = '';
+        currentArg += str[i];
+      }
+    }
+  }
+  if(currentArg !== null) {
+    args.push(currentArg);
+  }
+  return args;
 }
 
 function parseConf(str) {
@@ -55,13 +96,13 @@ function parseConf(str) {
           functionData = {
             name: match[1],
             args: parseArgs(match[2]),
-            command: match[3].slice(0, -1).trim()
+            command: parseCommandArgs(match[3].slice(0, -1).trim())
           };
           blockData = '';
         } else {
           functions[match[1]] = {
             args: parseArgs(match[2]),
-            command: match[3],
+            command: parseCommandArgs(match[3]),
           }
         }
       } else if (match = REGEX_KB.exec(element)) {
@@ -71,12 +112,12 @@ function parseConf(str) {
           keybindData = {
             kb: parseInt(match[1]),
             combo: parseCombo(match[2]),
-            command: match[3].slice(0, -1)
+            command: parseCommandArgs(match[3].slice(0, -1))
           };
           blockData = '';
         } else {
           keys['kb' + parseInt(match[1]) + '.' + parseCombo(match[2]).join('+')] = {
-            command: match[3].trim(),
+            command: parseCommandArgs(match[3].trim())
           }
         }
       }
