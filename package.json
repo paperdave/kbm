@@ -1,6 +1,6 @@
 {
   "name": "kbm",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "KeyBoard Macro tool for Linux",
   "dependencies": {
     "@reverse/string": "^1.1.3",
