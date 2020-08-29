@@ -24,19 +24,22 @@ function runAction(bindingConfig, action) {
         env: {
           ...process.env,
           ...env
-        }
+        },
+        detached: true
       }
     );
     if (func.data) {
       proc.stdin.write(func.data);
       proc.stdin.end();
     }
+    proc.unref();
   } else {
-    proc = spawn(program, args, { stdio: ['pipe', 'inherit', 'inherit'] });
+    proc = spawn(program, args, { stdio: ['pipe', 'inherit', 'inherit'], detached: true });
     if (action.data) {
       proc.stdin.write(action.data)
       proc.stdin.end()
     }
+    proc.unref();
   }
 
   proc.on('exit', () => {

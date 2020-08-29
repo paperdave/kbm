@@ -7,7 +7,28 @@ const fs = require('fs');
 
 const PAUSE = 'p';
 const RELOAD = 'r';
+const PING = '!';
 
+function rpcPing() {
+  return new Promise((done) => {
+    const connection = net.createConnection('/tmp/kbm.socket');
+    connection.write(PING);
+    const timeout = setTimeout(() => {
+      connection.end();
+      done(false);
+    }, 1000);
+    connection.on('data', () => {
+      clearTimeout(timeout);
+      connection.end();
+      done(true);
+    })
+    connection.on('error', () => {
+      clearTimeout(timeout);
+      connection.end();
+      done(false);
+    })
+  })
+}
 function rpcPause() {
   const connection = net.createConnection('/tmp/kbm.socket');
   connection.write(PAUSE);
@@ -30,9 +51,13 @@ class KBMDaemon {
   constructor() {}
 
   async initDaemon() {
+    const isStarted = await this.startServer();
+    if (!isStarted) {
+      return;
+    }
+
     await this.loadConfig();
     await this.start();
-    await this.startServer();
 
     process.on('exit', this.exitHandler.bind(this,{cleanup:true}));
 
@@ -44,6 +69,15 @@ class KBMDaemon {
 
   async startServer() {
     if(this.server) return;
+    if (fs.existsSync('/tmp/kbm.socket')) {
+      if (await rpcPing()) {
+        console.log('Daemon already running, sending reload to it.');
+        rpcReload();
+        return false;
+      } else {
+        fs.unlinkSync('/tmp/kbm.socket')
+      }
+    }
     this.server = net.createServer();
     this.server.on('connection', socket => {
       socket.on('data', (chars) => {
@@ -54,11 +88,15 @@ class KBMDaemon {
             this.stop();
           } else if (char === RELOAD) {
             this.reload();
+          } else if (char === PING) {
+            socket.write(':)');
+            socket.end();
           }
         })
       });
     });
     this.server.listen('/tmp/kbm.socket');
+    return true;
   }
 
   async loadConfig() {
@@ -111,5 +149,6 @@ module.exports = {
   KBMDaemon,
   startDaemon,
   rpcPause,
-  rpcReload
+  rpcReload,
+  rpcPing
 };
