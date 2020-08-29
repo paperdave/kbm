@@ -26,6 +26,7 @@ class ExternalShortcutHandler extends EventEmitter {
     this.process.stderr.on('data', (data) => {
       const strings = data.toString().split('\n').filter(Boolean);
       strings.forEach(str => {
+        verbose('kb' + kb + ' data: ' + str);
         if(!str.startsWith('Err')) {
           const [state, code, label] = str.split(',')
   
@@ -103,12 +104,17 @@ class X11ShortcutHandler extends EventEmitter {
 
     const stdin = Object.keys(x11grabs).join('\n');
 
+    verbose('(data passed to x11 kbm helper)');
+    verbose(stdin);
+    verbose('(end data passed)');
+
     this.process = spawn(HELPER_PATH, ['x11']);
     this.process.stdin.write(stdin);
     this.process.stdin.end();
     this.process.stderr.on('data', (data) => {
       const strings = data.toString().split('\n').filter(Boolean);
       strings.forEach(str => {
+        verbose('kb0 data: ' + str);
         if (x11grabs[str]) {
           const activatorKey = x11grabs[str].activatorKey;
           this.emit('action', {
