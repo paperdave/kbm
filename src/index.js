@@ -12,7 +12,6 @@ setVerboseLogging(false);
 yargs
   .scriptName("kbm")
   .usage('$0 <cmd> [args]')
-  .command('daemon', 'Run the background daemon.', () => require('./daemon').startDaemon())
   .option('verbose', { desc: 'Enable Verbose Logging.'} )
   .alias('v', 'verbose')
 
@@ -21,6 +20,8 @@ if (yargs.argv.v) {
 }
 
 yargs
+  .command('daemon', 'Run the background daemon.', () => require('./daemon').startDaemon())
+  .command('reload', 'Reload the background daemon.', () => require('./daemon').rpcReload())
   .command('config', 'Show the keyboard manager tui.', () => require('./tui-manager'))
   .command('debug', 'Debug', (yargs) => {
     yargs
