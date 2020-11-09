@@ -1,7 +1,12 @@
 const { spawn } = require('child_process');
 const { verbose } = require('./log');
 
+let running = false;
 function runAction(bindingConfig, action) {
+  console.log(action)
+  if (running) return
+  if (action.sync) running = true;
+  
   verbose('running action', action);
   const args = action.command.concat(); // clone array
   const program = args.shift() || 'bash';
@@ -44,6 +49,7 @@ function runAction(bindingConfig, action) {
 
   proc.on('exit', () => {
     if (action.runAfter) action.runAfter(action);
+    if (action.sync) running = false;
   })
 }
 

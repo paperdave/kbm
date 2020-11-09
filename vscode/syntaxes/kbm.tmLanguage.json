@@ -34,9 +34,12 @@
 			"end": "$"
 		},
 		"function": {
-			"begin": "(function)\\b",
+			"begin": "(sync\\s+)?(function)\\b",
 			"beginCaptures": {
 				"1": {
+					"name": "keyword.control"
+				},
+				"2": {
 					"name": "keyword.control"
 				}
 			},
@@ -126,10 +129,13 @@
 			"name": "constant.other"
 		},
 		"colon": {
-			"begin": "(:)",
+			"begin": "(:)(\\s*sync)?",
 			"beginCaptures": {
 				"1": {
 					"name": "keyword.operator.colon.kbm"
+				},
+				"2": {
+					"name": "keyword.control"
 				}
 			},
 			"patterns": [

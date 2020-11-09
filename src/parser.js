@@ -2,8 +2,8 @@ const { keyList } = require('./keys');
 const trim = require('trim-lines2');
 
 const REGEX_COMMENT = /^\s*(#|\/\/).*$/;
-const REGEX_FUNCTION = /^\s*function\s+([a-zA-Z_+-0-9][a-zA-Z0-9_\.+-]*)\s*\(([a-zA-Z_+0-9-][a-zA-Z0-9_\.+,\s-]*)?\)\s*:\s*(.*)/;
-const REGEX_KB = /^\s*kb([0-9]+)\s*@\s*([^:]+)\s*:\s*(.*)$/;
+const REGEX_FUNCTION = /^\s*(sync\s+)?function\s+([a-zA-Z_+-0-9][a-zA-Z0-9_\.+-]*)\s*\(([a-zA-Z_+0-9-][a-zA-Z0-9_\.+,\s-]*?)?\)?\s*:\s*(.*)/;
+const REGEX_KB = /^\s*kb([0-9]+)\s*@\s*([^:]+?)\s*:\s*(sync\s+)?(.*)$/;
 const REGEX_ALIAS = /^\s*alias\s+kb(\*|[0-9]+)\s+([a-zA-Z_0-9][a-zA-Z0-9_]*)\s*=\s*([a-zA-Z_0-9][a-zA-Z0-9_]*)\s*$/;
 const REGEX_BLOCK_END = /^(.*)}\s*$/;
 
@@ -94,15 +94,17 @@ function parseConf(str) {
           brackets = 1;
           insideBlock = 'function';
           functionData = {
-            name: match[1],
-            args: parseArgs(match[2]),
-            command: parseCommandArgs(match[3].slice(0, -1).trim())
+            name: match[2],
+            args: parseArgs(match[3]),
+            sync: !!match[1],
+            command: parseCommandArgs(match[4].slice(0, -1).trim())
           };
           blockData = '';
         } else {
           functions[match[1]] = {
-            args: parseArgs(match[2]),
-            command: parseCommandArgs(match[3]),
+            sync: !!match[1],
+            args: parseArgs(match[3]),
+            command: parseCommandArgs(match[4]),
           }
         }
       } else if (match = REGEX_KB.exec(element)) {
@@ -112,14 +114,18 @@ function parseConf(str) {
           keybindData = {
             kb: parseInt(match[1]),
             combo: parseCombo(match[2]),
-            command: parseCommandArgs(match[3].slice(0, -1))
+            sync: !!match[3],
+            command: parseCommandArgs(match[4].slice(0, -1))
           };
           blockData = '';
         } else {
           keys['kb' + parseInt(match[1]) + '.' + parseCombo(match[2]).join('+')] = {
-            command: parseCommandArgs(match[3].trim())
+            sync: !!match[3],
+            command: parseCommandArgs(match[4].trim())
           }
         }
+      } else {
+        console.log("Couldn't Match " + element)
       }
     } else {
       // do the thing
