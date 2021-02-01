@@ -73,6 +73,7 @@ keys.w = 0x0077;
 keys.x = 0x0078;
 keys.y = 0x0079;
 keys.z = 0x007a;
+keys.sleep = 0x008E;
 keys.backspace = 0xff08;
 keys.tab = 0xff09;
 keys.enter = 0xff0d;

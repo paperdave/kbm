@@ -157,7 +157,7 @@ static const char* const EXT_KEY_LABELS[256] = {
   "unknown",
   "unknown",
   "unknown",
-  "unknown",
+  "sleep",
   "unknown",
   "unknown",
   "unknown",
